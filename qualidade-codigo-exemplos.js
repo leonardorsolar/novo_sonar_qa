@@ -15,25 +15,33 @@ console.log("=== CODE SMELLS ===\n");
 
 // CODE SMELL 1: Função muito longa (Long Method)
 // Problema: Função faz muitas coisas, difícil de entender e testar
+// Refatorado: A função agora SEMPRE retorna o mesmo tipo (objeto) para evitar
+// retornos heterogêneos (boolean ou número). Estrutura: { sucesso, erro, valor }
 function processarPedido(pedido) {
     // Validação
-    if (!pedido.cliente) return false;
-    if (!pedido.itens || pedido.itens.length === 0) return false;
-    if (!pedido.endereco) return false;
-    
+    if (!pedido.cliente) {
+        return { sucesso: false, erro: "Cliente inválido", valor: null };
+    }
+    if (!pedido.itens || pedido.itens.length === 0) {
+        return { sucesso: false, erro: "Itens ausentes", valor: null };
+    }
+    if (!pedido.endereco) {
+        return { sucesso: false, erro: "Endereço ausente", valor: null };
+    }
+
     // Cálculo do total
     let total = 0;
     for (let item of pedido.itens) {
         total += item.preco * item.quantidade;
     }
-    
+
     // Aplicar desconto
     if (pedido.cupom === "DESC10") {
         total = total * 0.9;
     } else if (pedido.cupom === "DESC20") {
         total = total * 0.8;
     }
-    
+
     // Calcular frete
     let frete = 0;
     if (pedido.endereco.estado === "SP") {
@@ -43,14 +51,14 @@ function processarPedido(pedido) {
     } else {
         frete = 30;
     }
-    
+
     // Enviar email
     console.log(`Enviando email para ${pedido.cliente.email}`);
-    
+
     // Salvar no banco
     console.log("Salvando pedido no banco de dados...");
-    
-    return total + frete;
+
+    return { sucesso: true, erro: null, valor: total + frete };
 }
 
 // CODE SMELL 2: Código duplicado (Duplicated Code)
